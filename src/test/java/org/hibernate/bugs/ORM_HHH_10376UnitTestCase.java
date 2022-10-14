@@ -71,7 +71,35 @@ public class ORM_HHH_10376UnitTestCase extends BaseCoreFunctionalTestCase {
 	}
 
 	@Test
-	public void HHH_11278_Test() throws Exception {
+	public void HHH_11278_passing_Test() throws Exception {
+
+		Session s = openSession();
+		Transaction tx = s.beginTransaction();
+
+		Bar bar = new Bar();
+		bar.setFue("fue");
+		s.save(bar);
+
+		Foo foo = new Foo();
+		foo.setBar(bar);
+
+		s.save(foo);
+
+		Criteria createCriteria = s.createCriteria(Foo.class, "foo");
+		createCriteria.createAlias("bar", "bar");
+
+		createCriteria.addOrder(Order.desc("id"));
+
+		List foos = createCriteria.list();
+
+		assertTrue(true);
+
+		tx.commit();
+		s.close();
+	}
+
+	@Test
+	public void HHH_11278_failing_if_adding_projection_Test() throws Exception {
 
 		Session s = openSession();
 		Transaction tx = s.beginTransaction();
@@ -87,9 +115,9 @@ public class ORM_HHH_10376UnitTestCase extends BaseCoreFunctionalTestCase {
 		
 		Criteria createCriteria = s.createCriteria(Foo.class, "foo");
 		createCriteria.createAlias("bar", "bar");
-		
+
 		createCriteria.addOrder(Order.desc("id"));
-		
+
 		createCriteria.setProjection(Projections.distinct(Projections.property("bar")));
 		List foos = createCriteria.list();
 		
